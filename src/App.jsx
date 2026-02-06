@@ -1,15 +1,37 @@
 import { useEffect, useMemo, useState } from "react";
 import "./styles.css";
+import fruitApple from "./assets/Fruits/Fruits_Separated/Apple.png";
+import fruitBanana from "./assets/Fruits/Fruits_Separated/Banana.png";
+import fruitCherry from "./assets/Fruits/Fruits_Separated/Cherry.png";
+import fruitGrape from "./assets/Fruits/Fruits_Separated/Grape.png";
+import fruitKiwi from "./assets/Fruits/Fruits_Separated/Kiwi.png";
+import fruitLemon from "./assets/Fruits/Fruits_Separated/Lemon.png";
+import fruitOrange from "./assets/Fruits/Fruits_Separated/Orange.png";
+import fruitPeach from "./assets/Fruits/Fruits_Separated/Peach.png";
+import fruitPear from "./assets/Fruits/Fruits_Separated/Pear.png";
+import fruitPineapple from "./assets/Fruits/Fruits_Separated/Pineapple.png";
+import fruitStrawberry from "./assets/Fruits/Fruits_Separated/Strawberry.png";
+import fruitWatermelon from "./assets/Fruits/Fruits_Separated/Watermelon.png";
 
 const STORAGE_KEY = "peachy-todos-react";
 
 const STICKERS = [
-  { value: "peach", label: "Peach", icon: "🍑" },
-  { value: "heart", label: "Heart", icon: "♥" },
-  { value: "star", label: "Star", icon: "★" },
-  { value: "cloud", label: "Cloud", icon: "☁" },
+  { value: "apple", label: "Apple", image: fruitApple },
+  { value: "banana", label: "Banana", image: fruitBanana },
+  { value: "cherry", label: "Cherry", image: fruitCherry },
+  { value: "grape", label: "Grape", image: fruitGrape },
+  { value: "kiwi", label: "Kiwi", image: fruitKiwi },
+  { value: "lemon", label: "Lemon", image: fruitLemon },
+  { value: "orange", label: "Orange", image: fruitOrange },
+  { value: "peach", label: "Peach", image: fruitPeach },
+  { value: "pear", label: "Pear", image: fruitPear },
+  { value: "pineapple", label: "Pineapple", image: fruitPineapple },
+  { value: "strawberry", label: "Strawberry", image: fruitStrawberry },
+  { value: "watermelon", label: "Watermelon", image: fruitWatermelon },
 ];
 
+
+const STICKER_VALUES = new Set(STICKERS.map((s) => s.value));
 const PRIORITIES = [
   { value: "low", label: "Low", color: "low" },
   { value: "medium", label: "Medium", color: "medium" },
@@ -56,7 +78,7 @@ const useLocalTodos = () => {
         ...todo,
         priority: todo.priority || "medium",
         dueDate: todo.dueDate || "",
-        sticker: todo.sticker || "peach",
+        sticker: STICKER_VALUES.has(todo.sticker) ? todo.sticker : "peach",
       }))
     );
   }, []);
@@ -87,6 +109,9 @@ const Dropdown = ({ label, value, options, onChange, icon }) => {
         onClick={() => setOpen((prev) => !prev)}
       >
         {icon && <span className="dropdown-icon">{icon}</span>}
+        {current?.image && (
+          <img className="sticker-icon" src={current.image} alt="" />
+        )}
         <span>{label}: {current.label}</span>
         <span className="caret">▾</span>
       </button>
@@ -105,6 +130,9 @@ const Dropdown = ({ label, value, options, onChange, icon }) => {
               }}
             >
               {opt.icon && <span className="dropdown-icon">{opt.icon}</span>}
+              {opt.image && (
+                <img className="sticker-icon" src={opt.image} alt="" />
+              )}
               {opt.label}
             </button>
           ))}
@@ -222,11 +250,60 @@ const DatePicker = ({ value, onChange }) => {
 
 export default function App() {
   const [todos, setTodos] = useLocalTodos();
-  const [text, setText] = useState("Test task 1");
+  const [text, setText] = useState("");
   const [priority, setPriority] = useState("medium");
   const [sticker, setSticker] = useState("peach");
   const [dueDate, setDueDate] = useState("");
   const [filter, setFilter] = useState("all");
+  const [immersive, setImmersive] = useState(false);
+
+  const toggleImmersive = async () => {
+    const next = !immersive;
+    setImmersive(next);
+    if (next) {
+      if (document.documentElement.requestFullscreen) {
+        try {
+          await document.documentElement.requestFullscreen();
+        } catch {}
+      }
+    } else if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch {}
+    }
+  };
+
+  // Add a test task on initial render
+  useEffect(() => {
+    document.documentElement.classList.toggle("immersive", immersive);
+    return () => document.documentElement.classList.remove("immersive");
+  }, [immersive]);
+
+  useEffect(() => {
+    const handleFullscreen = () => {
+      if (!document.fullscreenElement) {
+        setImmersive(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreen);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreen);
+  }, []);
+
+  useEffect(() => {
+    if (todos.length === 0) {
+      setTodos([
+        {
+          id: crypto.randomUUID(),
+          text: "Test task 1",
+          done: false,
+          createdAt: Date.now(),
+          priority: "medium",
+          dueDate: "",
+          sticker: "peach",
+        },
+      ]);
+    }
+  }, [todos, setTodos]);
 
   const filtered = useMemo(() => {
     if (filter === "active") return todos.filter((todo) => !todo.done);
@@ -258,10 +335,17 @@ export default function App() {
   };
 
   return (
-    <main className="app">
+    <main className={`app${immersive ? " immersive" : ""}`}>
       <header className="header">
         <div className="title-block">
           <div className="pixel-badge">Cozy Mode</div>
+        <button
+          type="button"
+          className="btn ghost small"
+          onClick={toggleImmersive}
+        >
+          {immersive ? "Exit Immersive" : "Immersive View"}
+        </button>
           <h1>Peachy To-Do List</h1>
           <p className="subtitle">A tiny, cozy list made with care.</p>
         </div>
@@ -356,7 +440,8 @@ export default function App() {
                   )
                 }
               >
-                <span>OK</span>
+                <span className="sr-only">Toggle done</span>
+                <span className="checkmark" aria-hidden="true"></span>
               </button>
               <div className="item-body">
                 <div className="item-text">{todo.text}</div>
@@ -365,7 +450,13 @@ export default function App() {
                     Priority: {todo.priority}
                   </span>
                   <span className="badge sticker">
-                    {stickerInfo?.icon} {stickerInfo?.label}
+                    {stickerInfo?.image && (
+                      <img
+                        src={stickerInfo.image}
+                        alt=""
+                      />
+                    )}
+                    {stickerInfo?.label}
                   </span>
                   {todo.dueDate && (
                     <span className="badge">Due: {formatDate(todo.dueDate)}</span>
