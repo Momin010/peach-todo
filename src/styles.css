@@ -663,9 +663,10 @@
 
 @media (max-width: 480px) {
   .app {
-    width: 100%;
+    width: 92vw;
     border-width: 2px;
     padding: 16px;
+    min-height: unset;
   }
 
   .sticker-icon {
@@ -689,6 +690,14 @@
   .month-cell {
     min-height: 54px;
     padding: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .immersive .app {
+    width: 92vw;
+    min-height: unset;
+    margin: 12px auto;
   }
 }
 
