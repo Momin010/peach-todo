@@ -25,8 +25,12 @@ body {
   place-items: center;
   overflow-x: hidden;
   background:
-    linear-gradient(180deg, rgba(255, 246, 240, 0.45), rgba(255, 228, 214, 0.4)),
-    url("./assets/lataus (7).jpg") center / cover no-repeat fixed,
+    linear-gradient(
+      180deg,
+      rgba(255, 246, 240, var(--bg-overlay-top, 0.45)),
+      rgba(255, 228, 214, var(--bg-overlay-bottom, 0.4))
+    ),
+    var(--bg-image, url("./assets/lataus (7).jpg")) center / cover no-repeat fixed,
     radial-gradient(circle at top, rgba(255, 255, 255, 0.8), transparent 55%),
     linear-gradient(135deg, var(--peach-50), var(--skin-300));
   color: var(--cocoa-800);

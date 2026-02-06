@@ -12,6 +12,13 @@ import fruitPear from "./assets/Fruits/Fruits_Separated/Pear.png";
 import fruitPineapple from "./assets/Fruits/Fruits_Separated/Pineapple.png";
 import fruitStrawberry from "./assets/Fruits/Fruits_Separated/Strawberry.png";
 import fruitWatermelon from "./assets/Fruits/Fruits_Separated/Watermelon.png";
+import bgLataus from "./assets/lataus (7).jpg";
+import bgWall1 from "./assets/wallpaperflare.com_wallpaper (1).jpg";
+import bgWall2 from "./assets/wallpaperflare.com_wallpaper (2).jpg";
+import bgWall3 from "./assets/wallpaperflare.com_wallpaper (3).jpg";
+import bgWall4 from "./assets/wallpaperflare.com_wallpaper (4).jpg";
+import bgWall5 from "./assets/wallpaperflare.com_wallpaper (5).jpg";
+import bgWall6 from "./assets/wallpaperflare.com_wallpaper (6).jpg";
 
 const STORAGE_KEY = "peachy-todos-react";
 
@@ -30,8 +37,33 @@ const STICKERS = [
   { value: "watermelon", label: "Watermelon", image: fruitWatermelon },
 ];
 
+const BACKGROUNDS = [
+  { value: "lataus", label: "Lataus", image: bgLataus },
+  { value: "wall-1", label: "Wallpaper 1", image: bgWall1 },
+  { value: "wall-2", label: "Wallpaper 2", image: bgWall2 },
+  { value: "wall-3", label: "Wallpaper 3", image: bgWall3 },
+  { value: "wall-4", label: "Wallpaper 4", image: bgWall4 },
+  { value: "wall-5", label: "Wallpaper 5", image: bgWall5 },
+  { value: "wall-6", label: "Wallpaper 6", image: bgWall6 },
+];
+
+
 
 const STICKER_VALUES = new Set(STICKERS.map((s) => s.value));
+
+const THEME_STORAGE = "peachy-theme-v1";
+const DEFAULT_THEME = {
+  bg: "lataus",
+  overlay: 0.45,
+  appBg: "#ffe4d6",
+  noteBg: "#ffd1bb",
+  inputBg: "#fff6f0",
+  btnBg: "#ffbfa3",
+  btnPrimary: "#f1a7a2",
+  btnGhost: "#fff6f0",
+  btnSubtle: "#e6bda7",
+  border: "#6f4b3b",
+};
 const PRIORITIES = [
   { value: "low", label: "Low", color: "low" },
   { value: "medium", label: "Medium", color: "medium" },
@@ -256,6 +288,18 @@ export default function App() {
   const [dueDate, setDueDate] = useState("");
   const [filter, setFilter] = useState("all");
   const [immersive, setImmersive] = useState(false);
+  const [theme, setTheme] = useState(DEFAULT_THEME);
+  const [collapsed, setCollapsed] = useState({
+    header: false,
+    customize: false,
+    composer: false,
+    controls: false,
+    list: false,
+  });
+
+  const toggleSection = (key) => {
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const toggleImmersive = async () => {
     const next = !immersive;
@@ -273,7 +317,6 @@ export default function App() {
     }
   };
 
-  // Add a test task on initial render
   useEffect(() => {
     document.documentElement.classList.toggle("immersive", immersive);
     return () => document.documentElement.classList.remove("immersive");
@@ -290,20 +333,31 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (todos.length === 0) {
-      setTodos([
-        {
-          id: crypto.randomUUID(),
-          text: "Test task 1",
-          done: false,
-          createdAt: Date.now(),
-          priority: "medium",
-          dueDate: "",
-          sticker: "peach",
-        },
-      ]);
-    }
-  }, [todos, setTodos]);
+    const rawTheme = localStorage.getItem(THEME_STORAGE);
+    if (!rawTheme) return;
+    try {
+      const parsed = JSON.parse(rawTheme);
+      setTheme((prev) => ({ ...prev, ...parsed }));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const bg = BACKGROUNDS.find((item) => item.value === theme.bg) || BACKGROUNDS[0];
+    const root = document.documentElement.style;
+    root.setProperty("--bg-image", `url(\"${bg.image}\")`);
+    root.setProperty("--bg-overlay-top", theme.overlay);
+    root.setProperty("--bg-overlay-bottom", theme.overlay);
+    root.setProperty("--app-bg", theme.appBg);
+    root.setProperty("--note-bg", theme.noteBg);
+    root.setProperty("--input-bg", theme.inputBg);
+    root.setProperty("--btn-bg", theme.btnBg);
+    root.setProperty("--btn-primary-bg", theme.btnPrimary);
+    root.setProperty("--btn-ghost-bg", theme.btnGhost);
+    root.setProperty("--btn-subtle-bg", theme.btnSubtle);
+    root.setProperty("--border-color", theme.border);
+    localStorage.setItem(THEME_STORAGE, JSON.stringify(theme));
+  }, [theme]);
+
 
   const filtered = useMemo(() => {
     if (filter === "active") return todos.filter((todo) => !todo.done);
@@ -336,8 +390,11 @@ export default function App() {
 
   return (
     <main className={`app${immersive ? " immersive" : ""}`}>
-      <header className="header">
+      <header className={`header${collapsed.header ? " is-collapsed" : ""}`}>
         <div className="title-block">
+          <button type="button" className="btn ghost small" onClick={() => toggleSection("header")}>
+            {collapsed.header ? "Expand" : "Minimize"}
+          </button>
           <div className="pixel-badge">Cozy Mode</div>
         <button
           type="button"
@@ -349,7 +406,7 @@ export default function App() {
           <h1>Peachy To-Do List</h1>
           <p className="subtitle">A tiny, cozy list made with care.</p>
         </div>
-        <div className="note-card">
+        <div className="note-card glass">
           <div className="note-title">For you</div>
           <div className="note-body">
             Little tasks, soft colors, calm vibes. <span className="tiny">&lt;3</span>
@@ -357,7 +414,115 @@ export default function App() {
         </div>
       </header>
 
-      <section className="composer">
+      <section className={`customizer glass${collapsed.customize ? " is-collapsed" : ""}`}>
+        <div className="section-head">
+          <h3>Customize look</h3>
+          <button type="button" className="btn ghost small" onClick={() => toggleSection("customize")}>
+            {collapsed.customize ? "Expand" : "Minimize"}
+          </button>
+        </div>
+        <div className="customizer-grid">
+          <label>
+            Background image
+            <select
+              value={theme.bg}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, bg: event.target.value }))
+              }
+            >
+              {BACKGROUNDS.map((bg) => (
+                <option key={bg.value} value={bg.value}>
+                  {bg.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Background tint
+            <input
+              type="range"
+              min="0"
+              max="0.9"
+              step="0.05"
+              value={theme.overlay}
+              onChange={(event) =>
+                setTheme((prev) => ({
+                  ...prev,
+                  overlay: Number(event.target.value),
+                }))
+              }
+            />
+          </label>
+          <label>
+            App background
+            <input
+              type="color"
+              value={theme.appBg}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, appBg: event.target.value }))
+              }
+            />
+          </label>
+          <label>
+            Note background
+            <input
+              type="color"
+              value={theme.noteBg}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, noteBg: event.target.value }))
+              }
+            />
+          </label>
+          <label>
+            Input background
+            <input
+              type="color"
+              value={theme.inputBg}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, inputBg: event.target.value }))
+              }
+            />
+          </label>
+          <label>
+            Button color
+            <input
+              type="color"
+              value={theme.btnBg}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, btnBg: event.target.value }))
+              }
+            />
+          </label>
+          <label>
+            Primary button
+            <input
+              type="color"
+              value={theme.btnPrimary}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, btnPrimary: event.target.value }))
+              }
+            />
+          </label>
+          <label>
+            Border color
+            <input
+              type="color"
+              value={theme.border}
+              onChange={(event) =>
+                setTheme((prev) => ({ ...prev, border: event.target.value }))
+              }
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className={`composer glass${collapsed.composer ? " is-collapsed" : ""}`}>
+        <div className="section-head">
+          <h3>Add a task</h3>
+          <button type="button" className="btn ghost small" onClick={() => toggleSection("composer")}>
+            {collapsed.composer ? "Expand" : "Minimize"}
+          </button>
+        </div>
         <div className="composer-main">
           <label className="sr-only" htmlFor="todo-input">Add a task</label>
           <input
@@ -395,7 +560,13 @@ export default function App() {
         </div>
       </section>
 
-      <section className="controls">
+      <section className={`controls glass${collapsed.controls ? " is-collapsed" : ""}`}>
+        <div className="section-head">
+          <h3>Filters</h3>
+          <button type="button" className="btn ghost small" onClick={() => toggleSection("controls")}>
+            {collapsed.controls ? "Expand" : "Minimize"}
+          </button>
+        </div>
         <div className="stats">
           <span>{counts.total}</span> total
           <span className="dot"></span>
@@ -422,7 +593,14 @@ export default function App() {
         </button>
       </section>
 
-      <ul className="list" aria-live="polite">
+      <div className={`list-wrap glass${collapsed.list ? " is-collapsed" : ""}`} >
+        <div className="section-head">
+          <h3>Tasks</h3>
+          <button type="button" className="btn ghost small" onClick={() => toggleSection("list")}>
+            {collapsed.list ? "Expand" : "Minimize"}
+          </button>
+        </div>
+        <ul className="list" aria-live="polite">
         {filtered.map((todo) => {
           const stickerInfo = STICKERS.find((s) => s.value === todo.sticker);
           return (
@@ -454,6 +632,7 @@ export default function App() {
                       <img
                         src={stickerInfo.image}
                         alt=""
+                        className="sticker-icon"
                       />
                     )}
                     {stickerInfo?.label}
@@ -476,6 +655,7 @@ export default function App() {
           );
         })}
       </ul>
+      </div>
     </main>
   );
 }

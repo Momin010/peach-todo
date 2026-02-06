@@ -11,13 +11,23 @@
   --cocoa-800: #52342a;
   --mint-200: #cde7d8;
   --shadow: rgba(111, 75, 59, 0.25);
+  --app-bg: var(--peach-100);
+  --note-bg: var(--peach-200);
+  --input-bg: var(--peach-50);
+  --btn-bg: var(--peach-300);
+  --btn-primary-bg: var(--blush-400);
+  --btn-ghost-bg: var(--peach-50);
+  --btn-subtle-bg: var(--skin-400);
+  --border-color: var(--cocoa-700);
+  --shadow-color: var(--shadow);
 }
+
 
 .app {
   width: min(960px, 92vw);
-  background: var(--peach-100);
-  border: 3px solid var(--cocoa-700);
-  box-shadow: 10px 10px 0 var(--shadow);
+  background: var(--app-bg, var(--peach-100));
+  border: 3px solid var(--border-color, var(--cocoa-700));
+  box-shadow: 10px 10px 0 var(--shadow-color, var(--shadow));
   padding: 28px;
   border-radius: 14px;
   max-width: 100%;
@@ -83,9 +93,9 @@
 }
 
 .note-card {
-  background: var(--peach-200);
-  border: 2px solid var(--cocoa-700);
-  box-shadow: 6px 6px 0 var(--shadow);
+  background: var(--note-bg, var(--peach-200));
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  box-shadow: 6px 6px 0 var(--shadow-color, var(--shadow));
   padding: 14px;
   border-radius: 10px;
   position: relative;
@@ -143,7 +153,7 @@
 .input {
   padding: 12px 14px;
   border: 2px solid var(--cocoa-700);
-  background: var(--peach-50);
+  background: var(--input-bg, var(--peach-50));
   box-shadow: inset 3px 3px 0 rgba(82, 52, 42, 0.12);
   border-radius: 8px;
   color: inherit;
@@ -186,9 +196,9 @@
 
 .btn {
   padding: 10px 14px;
-  border: 2px solid var(--cocoa-700);
-  background: var(--peach-300);
-  box-shadow: 4px 4px 0 var(--shadow);
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  background: var(--btn-bg, var(--peach-300));
+  box-shadow: 4px 4px 0 var(--shadow-color, var(--shadow));
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -206,15 +216,15 @@
 }
 
 .btn.primary {
-  background: var(--blush-400);
+  background: var(--btn-primary-bg, var(--blush-400));
 }
 
 .btn.ghost {
-  background: var(--peach-50);
+  background: var(--btn-ghost-bg, var(--peach-50));
 }
 
 .btn.subtle {
-  background: var(--skin-400);
+  background: var(--btn-subtle-bg, var(--skin-400));
 }
 
 .btn.small {
@@ -346,8 +356,8 @@
 .dropdown-trigger {
   width: 100%;
   padding: 12px 14px;
-  border: 2px solid var(--cocoa-700);
-  background: var(--peach-50);
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  background: var(--input-bg, var(--peach-50));
   border-radius: 8px;
   box-shadow: inset 3px 3px 0 rgba(82, 52, 42, 0.12);
   display: flex;
@@ -388,8 +398,8 @@
 
 .dropdown-item {
   padding: 8px 10px;
-  border: 2px solid var(--cocoa-700);
-  background: var(--peach-50);
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  background: var(--input-bg, var(--peach-50));
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -719,4 +729,91 @@
 .immersive .app::before,
 .immersive .app::after {
   opacity: 0.5;
+}
+
+.customizer {
+  margin: 16px 0 20px;
+  padding: 12px;
+  border: 2px dashed var(--border-color, var(--cocoa-700));
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.35);
+  display: grid;
+  gap: 10px;
+}
+
+.customizer h3 {
+  margin: 0;
+  font-size: 11px;
+}
+
+.customizer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.customizer label {
+  font-size: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.customizer select,
+.customizer input[type="color"],
+.customizer input[type="range"] {
+  width: 100%;
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--input-bg, var(--peach-50));
+  font: inherit;
+}
+
+.customizer input[type="color"] {
+  padding: 0;
+  height: 36px;
+}
+
+@media (max-width: 720px) {
+  .customizer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(82, 52, 42, 0.12);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.section-head h3 {
+  margin: 0;
+  font-size: 11px;
+}
+
+.is-collapsed .composer-main,
+.is-collapsed .composer-extra,
+.is-collapsed .customizer-grid,
+.is-collapsed .controls > :not(.section-head),
+.is-collapsed .list,
+.is-collapsed .note-card,
+.is-collapsed .title-block h1,
+.is-collapsed .subtitle {
+  display: none;
+}
+
+.list-wrap {
+  padding: 12px;
+  border: 2px solid var(--border-color, var(--cocoa-700));
+  border-radius: 12px;
 }
